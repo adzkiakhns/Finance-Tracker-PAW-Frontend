@@ -1,9 +1,97 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { axios } from "@/lib/axios";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function SignUpPage() {
+// Modal component for error messages
+const Modal = ({ message, onClose }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <p>{message}</p>
+        <button
+          onClick={onClose}
+          className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default function SignUpPage() {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState(null);
+  const [modalMessage, setModalMessage] = useState(null); // Modal message state
+  const router = useRouter();
+
+  // Password validation logic
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    if (confirmPassword && value !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+    } else {
+      setPasswordError(null);
+    }
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+    if (password && value !== password) {
+      setPasswordError("Passwords do not match");
+    } else {
+      setPasswordError(null);
+    }
+  };
+
+  // Form submission logic
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (passwordError) {
+      setModalMessage("Please fix the errors before submitting.");
+      return;
+    }
+
+    try {
+      console.log("Submitting data:", { username, email, password });
+      const response = await axios.post(
+        "/api/users/register", // Replace with actual API URL
+        {
+          username,
+          email,
+          password,
+        },
+        { withCredentials: true }, // Ensure credentials are sent if necessary
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        router.push("/signin");
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error("There was an error during signup:", error.response.data);
+        setModalMessage(`Sign up failed: ${error.response.data.message}`);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        setModalMessage("No response from the server. Please try again.");
+      } else {
+        console.error("Error setting up the request:", error.message);
+        setModalMessage("An error occurred. Please try again.");
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 text-black">
       <div className="flex flex-col lg:flex-row w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
         {/* Left section with image/illustration */}
         <div className="w-full lg:w-1/2 p-8 bg-blue-50 flex items-center justify-center">
@@ -19,16 +107,18 @@ export default function SignUpPage() {
         {/* Right section with the form */}
         <div className="w-full lg:w-1/2 p-8">
           <h1 className="text-2xl font-bold mb-6 text-black">Create an account</h1>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Name
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                Username
               </label>
               <input
                 type="text"
-                id="name"
-                name="name"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                required
               />
             </div>
 
@@ -39,26 +129,64 @@ export default function SignUpPage() {
               <input
                 type="email"
                 id="email"
-                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                required
               />
             </div>
 
-            <div className="mb-6">
+            <div className="mb-4">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="confirm-password"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              {passwordError && <p className="text-red-500 text-sm mt-2">{passwordError}</p>}
             </div>
 
             <button
               type="submit"
               className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
+              disabled={passwordError !== null}
             >
               Sign up
             </button>
@@ -72,6 +200,9 @@ export default function SignUpPage() {
           </p>
         </div>
       </div>
+
+      {/* Modal for displaying errors */}
+      {modalMessage && <Modal message={modalMessage} onClose={() => setModalMessage(null)} />}
     </div>
   );
 }
