@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 export function NavBar() {
   const router = useRouter();
@@ -32,6 +33,9 @@ export function NavBar() {
             </Link>
           ))}
         </div>
+        <button type="button" onClick={() => signOut()} className="text-white bg-red-500 rounded-md px-4 py-3">
+          Sign Out
+        </button>
       </div>
     </nav>
   );
