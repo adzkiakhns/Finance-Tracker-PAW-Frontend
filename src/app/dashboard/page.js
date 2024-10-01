@@ -1,23 +1,64 @@
 "use client";
 
 import { Column, Tiny } from "@ant-design/plots";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { axios } from "@/lib/axios";
+import { IoDiamondOutline, IoFastFoodOutline } from "react-icons/io5";
+import { BsBoxArrowUpLeft } from "react-icons/bs";
+import { BsBank } from "react-icons/bs";
+import { FaMoneyBillTrendUp } from "react-icons/fa6";
+import { ImSpoonKnife } from "react-icons/im";
+import { NavBar } from "@/components/navbar";
 
 export default function Dashboard() {
-  // Data for the bar chart
-  const data = [
-    { week: "1st Week", value: 1000, type: "Income" },
-    { week: "2nd Week", value: 3000, type: "Income" },
-    { week: "3rd Week", value: 5000, type: "Income" },
-    { week: "4th Week", value: 8000, type: "Income" },
-    { week: "1st Week", value: 800, type: "Expense" },
-    { week: "2nd Week", value: 2000, type: "Expense" },
-    { week: "3rd Week", value: 4000, type: "Expense" },
-    { week: "4th Week", value: 3000, type: "Expense" },
-  ];
+  const [data, setData] = useState([]);
+  const [incomeData, setIncomeData] = useState([]);
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  useEffect(() => {
+    // Get the current year and month
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+
+    const fetchFinancialData = async () => {
+      try {
+        const response = await axios.get(`/api/financial/${year}/${month}`);
+        const apiData = response.data;
+
+        const transformedData = apiData.flatMap((item) => [
+          { week: `${item.week} Week`, value: item.totalIncome, type: "Income" },
+          { week: `${item.week} Week`, value: item.totalExpenses, type: "Expense" },
+        ]);
+
+        setData(apiData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    const fetchIncomeData = async () => {
+      try {
+        const startDate = "2024-01-01";
+        const endDate = "2024-12-31";
+
+        const response = await axios.get(`/api/income/daterange?startDate=${startDate}&endDate=${endDate}`);
+
+        const incomeApiData = response.data;
+        setIncomeData(incomeApiData);
+      } catch (error) {
+        console.error("Error fetching income data:", error);
+      }
+    };
+
+    fetchFinancialData();
+    fetchIncomeData();
+  }, [currentDate]);
 
   const columnConfig = {
-    data,
+    data: data.flatMap((item) => [
+      { week: `${item.week} Week`, value: item.totalIncome, type: "Income" },
+      { week: `${item.week} Week`, value: item.totalExpenses, type: "Expense" },
+    ]),
     isGroup: true,
     xField: "week",
     yField: "value",
@@ -58,97 +99,72 @@ export default function Dashboard() {
     ],
   };
 
+  const iconMap = {
+    Jewelry: <IoDiamondOutline className="w-5 h-5 text-white" />,
+    Makanan: <IoFastFoodOutline className="w-5 h-5 text-white" />,
+    Other: <BsBoxArrowUpLeft className="w-5 h-5 text-white" />,
+    Food: <IoFastFoodOutline className="w-5 h-5 text-white" />,
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8 text-black">
-      <h1 className="text-3xl font-bold text-center mb-8">Expense & Income Management</h1>
+    <div className="min-h-screen w-full bg-gray-50 pt-20">
+      <NavBar />
+      <div className="min-h-screen bg-gray-50 p-8 text-black">
+        <h1 className="text-3xl font-bold text-center mb-8">Expense & Income Management</h1>
 
-      {/* Column Chart Section */}
-      <div className="bg-white shadow-lg rounded-lg p-6 aspect-[3/1] mb-8">
-        <Column {...columnConfig} />
-      </div>
-
-      {/* Income & Expense Overview Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Left Side: List of Transactions */}
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <div className="flex items-center mb-8">
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-blue-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3"></path>
-              </svg>
-            </div>
-            <div className="ml-4">
-              <h2 className="text-lg font-bold">Salary</h2>
-              <p className="text-sm text-gray-500">18:27 - April 30</p>
-              <p className="text-sm text-gray-500">Monthly</p>
-            </div>
-            <div className="ml-auto text-lg font-bold text-green-600">$4,000.00</div>
-          </div>
-
-          <div className="flex items-center mb-8">
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-blue-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3"></path>
-              </svg>
-            </div>
-            <div className="ml-4">
-              <h2 className="text-lg font-bold">Groceries</h2>
-              <p className="text-sm text-gray-500">17:00 - April 24</p>
-              <p className="text-sm text-gray-500">Pantry</p>
-            </div>
-            <div className="ml-auto text-lg font-bold text-red-600">- $100.00</div>
-          </div>
-
-          <div className="flex items-center mb-8">
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-blue-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3"></path>
-              </svg>
-            </div>
-            <div className="ml-4">
-              <h2 className="text-lg font-bold">Rent</h2>
-              <p className="text-sm text-gray-500">8:30 - April 15</p>
-              <p className="text-sm text-gray-500">Rent</p>
-            </div>
-            <div className="ml-auto text-lg font-bold text-red-600">- $674.40</div>
-          </div>
+        {/* Column Chart Section */}
+        <div className="bg-white shadow-lg rounded-lg p-6 aspect-[3/1] mb-8">
+          <Column {...columnConfig} />
         </div>
 
-        {/* Right Side: Savings Goals & Summary */}
-        <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-center">
-          <div className="flex items-center justify-between mb-8">
-            <div className="text-lg font-bold text-green-600">Savings on Goals</div>
-            {/* Replaced SVG with Tiny.Ring */}
-            <Tiny.Ring {...ringConfig} />
+        {/* Income & Expense Overview Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Left Side: List of Transactions */}
+          <div className="bg-white shadow-lg rounded-lg p-6">
+            {incomeData.map((item) => (
+              <div key={item._id} className="flex items-center mb-8">
+                <div className="bg-blue-500 rounded-full p-3">
+                  {/* Use the corresponding icon based on the _id */}
+                  {iconMap[item._id] || <BsBoxArrowUpLeft className="w-5 h-5 text-white" />}
+                </div>
+                <div className="ml-4">
+                  <h2 className="text-lg font-bold">{item._id}</h2>
+                  <p className="text-sm text-gray-500">Amount: {item.count}</p>
+                </div>
+                <div className="ml-auto text-lg font-bold text-green-600">Rp{item.totalAmount.toLocaleString()}</div>
+              </div>
+            ))}
           </div>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold">Revenue Last Week</h3>
-              <p className="text-xl font-bold text-green-600">$4,000.00</p>
+          {/* Right Side: Savings Goals & Summary */}
+          <div className="bg-white shadow-lg flex flex-row rounded-lg p-6 justify-around px-10">
+            <div className="flex flex-col justify-center">
+              {/* Replaced SVG with Tiny.Ring */}
+              <div className="relative">
+                <BsBank className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10" />
+                <Tiny.Ring {...ringConfig} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+              </div>
+              <div className="text-lg text-center">
+                Savings on <br /> Goals
+              </div>
             </div>
 
-            <div>
-              <h3 className="text-sm font-bold">Food Last Week</h3>
-              <p className="text-xl font-bold text-red-600">- $100.00</p>
+            <div className="flex items-left gap-3 flex-col justify-center">
+              <div className="flex flex-row gap-3 items-center">
+                <FaMoneyBillTrendUp className="w-8 h-8" />
+                <div className="flex flex-col">
+                  <h3 className="text-sm font-bold">Revenue Last Week</h3>
+                  <p className="text-xl font-bold text-green-600">$4,000.00</p>
+                </div>
+              </div>
+
+              <div className="flex flex-row gap-3 items-center">
+                <ImSpoonKnife className="w-8 h-8" />
+                <div className="flex flex-col">
+                  <h3 className="text-sm font-bold">Food Last Week</h3>
+                  <p className="text-xl font-bold text-red-600">- $100.00</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

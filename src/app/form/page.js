@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { axios } from "@/lib/axios";
+import { NavBar } from "@/components/navbar";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
@@ -9,33 +10,30 @@ export default function TransactionsPage() {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [transactionType, setTransactionType] = useState("Income");
-  const [editId, setEditId] = useState(null); // Store the ID of the transaction being edited
+  const [editId, setEditId] = useState(null);
 
-  // Fetch transactions from API on mount
   useEffect(() => {
     fetchTransactions();
   }, []);
   console.log(transactions);
 
-  // Function to fetch both income and expense transactions
   const fetchTransactions = async () => {
     try {
-      const incomeResponse = await axios.get("http://localhost:5000/api/income");
-      const expenseResponse = await axios.get("http://localhost:5000/api/expenses");
+      const incomeResponse = await axios.get("/api/income");
+      const expenseResponse = await axios.get("/api/expenses");
 
-      // Mapping income and expense data
       const incomeTransactions = incomeResponse.data.map((item) => ({
         id: item._id,
-        description: item.source, // Mapping 'source' to 'description' for income
+        description: item.source,
         amount: item.amount,
         category: item.category,
-        date: new Date(item.date).toLocaleDateString(), // Formatting the date
+        date: new Date(item.date).toLocaleDateString(),
         transactionType: "Income",
       }));
 
       const expenseTransactions = expenseResponse.data.map((item) => ({
         id: item._id,
-        description: item.description, // Mapping 'description' for expenses
+        description: item.description,
         amount: item.amount,
         category: item.category,
         date: new Date(item.date).toLocaleDateString(),
@@ -48,36 +46,33 @@ export default function TransactionsPage() {
     }
   };
 
-  // Function to add a new transaction (Create)
   const handleAddTransaction = async () => {
     const newTransaction = {
-      source: transactionType === "Income" ? description : undefined, // For income
-      description: transactionType === "Expense" ? description : undefined, // For expense
+      source: transactionType === "Income" ? description : undefined,
+      description: transactionType === "Expense" ? description : undefined,
       amount: parseFloat(amount),
       category,
-      date: new Date(), // Sending the current date
+      date: new Date(),
     };
 
     try {
       let response;
       if (transactionType === "Income") {
-        response = await axios.post("http://localhost:5000/api/income", newTransaction);
+        response = await axios.post("/api/income", newTransaction);
       } else {
-        response = await axios.post("http://localhost:5000/api/expenses", newTransaction);
+        response = await axios.post("/api/expenses", newTransaction);
       }
 
-      // Add the new transaction to the local state
       setTransactions([
         ...transactions,
         {
           ...newTransaction,
           id: response.data._id,
-          date: new Date(response.data.date).toLocaleDateString(), // Formatting the date
+          date: new Date(response.data.date).toLocaleDateString(),
           transactionType,
         },
       ]);
 
-      // Reset form fields
       setDescription("");
       setAmount("");
       setCategory("");
@@ -86,23 +81,19 @@ export default function TransactionsPage() {
     }
   };
 
-  // Function to delete a transaction (Delete)
   const handleDeleteTransaction = async (id, type) => {
     try {
       if (type === "Income") {
-        await axios.delete(`http://localhost:5000/api/income/${id}`);
+        await axios.delete(`/api/income/${id}`);
       } else {
-        await axios.delete(`http://localhost:5000/api/expenses/${id}`);
+        await axios.delete(`/api/expenses/${id}`);
       }
 
-      // Remove from local state
       setTransactions(transactions.filter((transaction) => transaction.id !== id));
     } catch (err) {
       console.error("Error deleting transaction:", err);
     }
   };
-
-  // Function to set the edit state for a transaction
   const handleEditTransaction = (transaction) => {
     setEditId(transaction.id);
     setDescription(transaction.description);
@@ -111,31 +102,28 @@ export default function TransactionsPage() {
     setTransactionType(transaction.transactionType);
   };
 
-  // Function to update an existing transaction (Update)
   const handleUpdateTransaction = async () => {
     const updatedTransaction = {
-      source: transactionType === "Income" ? description : undefined, // For income
-      description: transactionType === "Expense" ? description : undefined, // For expense
+      source: transactionType === "Income" ? description : undefined,
+      description: transactionType === "Expense" ? description : undefined,
       amount: parseFloat(amount),
       category,
-      date: new Date(), // Sending the current date
+      date: new Date(),
     };
 
     try {
       if (transactionType === "Income") {
-        await axios.put(`http://localhost:5000/api/income/${editId}`, updatedTransaction);
+        await axios.put(`/api/income/${editId}`, updatedTransaction);
       } else {
-        await axios.put(`http://localhost:5000/api/expenses/${editId}`, updatedTransaction);
+        await axios.put(`/api/expenses/${editId}`, updatedTransaction);
       }
 
-      // Update the local state
       setTransactions(
         transactions.map((transaction) =>
           transaction.id === editId ? { ...transaction, description, amount, category, transactionType } : transaction,
         ),
       );
 
-      // Reset form fields and edit mode
       setEditId(null);
       setDescription("");
       setAmount("");
@@ -147,6 +135,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="bg-gray-50 flex min-h-screen w-full items-center justify-center p-4">
+      <NavBar />
       <div className="flex w-full flex-col justify-between gap-4 text-black lg:flex-row">
         {/* Transaction Input Form */}
         <div className="w-full rounded-lg bg-white p-6 shadow-lg lg:w-1/3">
