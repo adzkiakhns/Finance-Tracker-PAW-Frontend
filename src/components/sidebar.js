@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+import { MdDashboard } from "react-icons/md";
+import { FaWpforms } from "react-icons/fa";
+import { CgProfile } from "react-icons/cg";
 import Image from "next/image";
 
 export function Sidebar() {
@@ -9,9 +14,9 @@ export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   // Define an array for the navigation links
   const navItems = [
-    { name: "Dashboard", path: "/dashboard", icons: "/dashboard.svg" },
-    { name: "Form", path: "/form", icons: "/form.svg" },
-    { name: "Profile", path: "/profile", icons: "/profile.svg" },
+    { name: "Dashboard", path: "/dashboard", icons: <MdDashboard className="w-5 h-5" /> },
+    { name: "Form", path: "/form", icons: <FaWpforms className="w-5 h-5" /> },
+    { name: "Profile", path: "/profile", icons: <CgProfile className="w-5 h-5" /> },
   ];
 
   return (
@@ -45,7 +50,7 @@ export function Sidebar() {
                 }`}
               >
                 {/* Icon */}
-                <Image src={item.icons} alt={item.name} width={24} height={24} />
+                {item.icons}
                 {/* Link Name */}
                 <span className="flex-grow">{item.name}</span>
               </div>
