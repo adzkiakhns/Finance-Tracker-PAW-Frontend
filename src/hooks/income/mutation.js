@@ -36,7 +36,7 @@ export const useDeleteIncome = () => {
   return useApiMutation2({
     queryKey: ["income", "delete"],
     mutationFun: async (_, data) => {
-      const res = await axios.delete(`/api/income/${userId}/${data.id}`, {
+      const res = await axios.delete(`/api/income/${userId}/${data}`, {
         headers,
       });
       return res?.data;

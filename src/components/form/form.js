@@ -8,19 +8,25 @@ import { useGetIncome, useAddIncome, useEditIncome, useDeleteIncome } from "@/ho
 export function TransactionSummary() {
   const { data: expenseData, isLoading: loadingExpenses } = useGetExpenses();
   const { data: incomeData, isLoading: loadingIncome } = useGetIncome();
-  const { mutate: AddIncome } = useAddIncome();
-  const { mutate: AddExpenses } = useAddExpenses();
+  const { mutate: addIncome } = useAddIncome();
+  const { mutate: addExpenses } = useAddExpenses();
+  const { mutate: editIncome } = useEditIncome();
+  const { mutate: editExpenses } = useEditExpenses();
+  const { mutate: deleteIncome } = useDeleteIncome();
+  const { mutate: deleteExpenses } = useDeleteExpenses();
 
   const [formData, setFormData] = useState({
-    description: "",
+    id: null, // To distinguish between Add and Edit
+    source: "",
     amount: "",
     category: "",
     type: "Income",
   });
 
+  const [isEditing, setIsEditing] = useState(false); // Toggle Add/Edit mode
+
   if (loadingExpenses || loadingIncome) return <div>Loading...</div>;
 
-  // Function to transform data into required format
   function transformData(data, type) {
     return (
       data?.map((item) => {
@@ -31,6 +37,7 @@ export function TransactionSummary() {
         )} ${date.getDate()}`;
         const amount = `Rp${(item.amount / 1000).toFixed(0)}k`;
         return {
+          id: item._id,
           name: item.source,
           date: formattedDate,
           type: item.category,
@@ -41,39 +48,56 @@ export function TransactionSummary() {
     );
   }
 
-  // Transform both income and expense data
   const transformedIncome = transformData(incomeData, "Income");
-  const transformedExpenses = transformData(expenseData, "Expenses");
-
-  // Merge and sort by date
+  const transformedExpenses = transformData(expenseData, "Expense");
   const mergedData = [...transformedIncome, ...transformedExpenses].sort((a, b) => {
     return new Date(b.date.split(" - ")[1]) - new Date(a.date.split(" - ")[1]);
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.description || !formData.amount || !formData.category) {
+    if (!formData.source || !formData.amount || !formData.category) {
       alert("Please fill out all fields.");
       return;
     }
-    if (e.type === "Income") {
-      AddIncome(formData);
-    } else {
-      AddExpenses(formData);
-    }
+
+    const action =
+      formData.type === "Income" ? (isEditing ? editIncome : addIncome) : isEditing ? editExpenses : addExpenses;
+    action(formData, {
+      onSuccess: () => {
+        setFormData({ source: "", amount: "", category: "", type: "Income", id: null });
+        setIsEditing(false);
+      },
+    });
+  };
+
+  const handleEdit = (transaction) => {
+    setFormData({
+      id: transaction.id,
+      source: transaction.name,
+      amount: transaction.amount.replace("Rp", "").replace("k", "") * 1000,
+      category: transaction.type,
+      type: transaction.tag,
+    });
+    setIsEditing(true);
+  };
+
+  const handleDelete = (transaction) => {
+    const deleteAction = transaction.tag === "Income" ? deleteIncome : deleteExpenses;
+    console.log(transaction);
+    deleteAction(transaction.id);
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen w-full flex flex-col lg:flex-row gap-6 items-start justify-center">
-      {/* Transaction Summary Form */}
       <div className="bg-white rounded-xl shadow-lg w-full p-6 lg:w-1/3">
-        <h2 className="text-xl font-bold text-orange-600 mb-4">Transaction Summary</h2>
+        <h2 className="text-xl font-bold text-orange-600 mb-4">{isEditing ? "Edit Transaction" : "Add Transaction"}</h2>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
             type="text"
             placeholder="Description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            value={formData.source}
+            onChange={(e) => setFormData({ ...formData, source: e.target.value })}
             className="w-full px-4 py-3 border rounded-lg text-gray-600 focus:outline-none"
           />
           <input
@@ -114,33 +138,43 @@ export function TransactionSummary() {
             type="submit"
             className="w-full px-4 py-3 bg-orange-400 text-white font-bold rounded-lg hover:bg-orange-500 transition"
           >
-            PROCEED
+            {isEditing ? "UPDATE" : "PROCEED"}
           </button>
         </form>
       </div>
 
-      {/* Categories Table */}
       <div className="bg-white rounded-xl shadow-lg p-6 w-full lg:w-2/3">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Categories</h2>
         <div className="border-t border-gray-200">
           <div className="grid grid-cols-12 py-3 text-gray-500 text-sm">
-            <div className="col-span-4">Transaction Name</div>
-            <div className="col-span-4">Date</div>
+            <div className="col-span-3">Transaction Name</div>
+            <div className="col-span-3">Date</div>
             <div className="col-span-2">Type</div>
-            <div className="col-span-2">Amount</div>
+            <div className="col-span-2">Ammount</div>
+
+            <div className="col-span-2">Actions</div>
           </div>
           {mergedData.length ? (
-            mergedData.map((transaction, index) => (
+            mergedData.map((transaction) => (
               <div
                 key={transaction.id}
                 className={`grid grid-cols-12 py-4 border-t border-gray-100 bg-opacity-50 ${
                   transaction.tag === "Income" ? "bg-green-50" : "bg-red-50"
                 }`}
               >
-                <div className="col-span-4 font-bold text-gray-800">{transaction.name}</div>
-                <div className="col-span-4 text-gray-400">{transaction.date}</div>
+                <div className="col-span-3 font-bold text-gray-800">{transaction.name}</div>
+                <div className="col-span-3 text-gray-400">{transaction.date}</div>
                 <div className="col-span-2 text-gray-800">{transaction.type}</div>
                 <div className="col-span-2 font-bold text-gray-800">{transaction.amount}</div>
+
+                <div className="col-span-2 flex gap-2">
+                  <button onClick={() => handleEdit(transaction)} className="text-blue-500 hover:underline">
+                    Edit
+                  </button>
+                  <button onClick={() => handleDelete(transaction)} className="text-red-500 hover:underline">
+                    Delete
+                  </button>
+                </div>
               </div>
             ))
           ) : (
