@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -9,7 +10,9 @@ export default function Home() {
           <Image src="/logo.png" alt="PennyWise Logo" className="mr-2" width={48} height={48} />
           <h1 className="text-xl font-bold text-red-600">PennyWise</h1>
         </div>
-        <button className="bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600">Login</button>
+        <Link href="/sigin" className="bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600">
+          Login
+        </Link>
       </header>
 
       {/* Hero Section */}

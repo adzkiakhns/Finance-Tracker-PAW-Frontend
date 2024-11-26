@@ -40,7 +40,7 @@ export function Sidebar() {
           {navItems.map((item) => (
             <Link key={item.name} href={item.path}>
               <div
-                className={`flex gap-2 items-center p-3 rounded-lg mb-2 cursor-pointer transition-colors ${
+                className={`flex gap-2 text-sm items-center p-3 rounded-lg mb-2 cursor-pointer transition-colors ${
                   pathname === item.path ? "bg-orange-500 text-white shadow-lg" : "text-gray-500 hover:bg-gray-100"
                 }`}
               >

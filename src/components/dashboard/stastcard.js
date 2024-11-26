@@ -2,9 +2,9 @@ import Image from "next/image";
 
 export function StatsCard() {
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="flex items-center justify-center h-full bg-gray-50">
       {/* Card Container */}
-      <div className="relative flex flex-row gap-3 justify-center flex-wrap items-center md:justify-arround w-full p-6 bg-white shadow-lg rounded-xl ">
+      <div className="relative flex flex-row gap-3 justify-center flex-wrap items-center md:justify-arround w-full p-6 bg-white rounded-xl ">
         {/* Glowing Border */}
         <div
           className="absolute inset-0 -z-10 rounded-xl blur-md opacity-80"

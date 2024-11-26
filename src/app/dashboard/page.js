@@ -11,14 +11,13 @@ import { ImSpoonKnife } from "react-icons/im";
 import { Sidebar } from "@/components/sidebar";
 import { useSession } from "next-auth/react";
 import { IoSearchSharp } from "react-icons/io5";
-import { StatsCard } from "@/components/dashboard";
+import { StatsCard, StatsDashboard, CategoriesTable } from "@/components/dashboard";
 
 export default function Dashboard() {
   const [data, setData] = useState([]);
   const [incomeData, setIncomeData] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data: session } = useSession();
-  console.log(session);
 
   useEffect(() => {
     // Get the current year and month
@@ -124,62 +123,8 @@ export default function Dashboard() {
         </div>
 
         <StatsCard />
-        {/* Column Chart Section */}
-        <div className="bg-white shadow-lg rounded-lg aspect-[3/1] mb-8">
-          <Column {...columnConfig} />
-        </div>
-
-        {/* Income & Expense Overview Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left Side: List of Transactions */}
-          <div className="bg-white shadow-lg rounded-lg p-6">
-            {incomeData.map((item) => (
-              <div key={item._id} className="flex items-center mb-8">
-                <div className="bg-blue-500 rounded-full p-3">
-                  {/* Use the corresponding icon based on the _id */}
-                  {iconMap[item._id] || <BsBoxArrowUpLeft className="w-5 h-5 text-white" />}
-                </div>
-                <div className="ml-4">
-                  <h2 className="text-lg font-bold">{item._id}</h2>
-                  <p className="text-sm text-gray-500">Amount: {item.count}</p>
-                </div>
-                <div className="ml-auto text-lg font-bold text-green-600">Rp{item.totalAmount.toLocaleString()}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Right Side: Savings Goals & Summary */}
-          <div className="bg-white shadow-lg flex flex-row rounded-lg p-6 justify-around px-10">
-            <div className="flex flex-col justify-center">
-              {/* Replaced SVG with Tiny.Ring */}
-              <div className="relative">
-                <BsBank className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10" />
-                <Tiny.Ring {...ringConfig} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-              </div>
-              <div className="text-lg text-center">
-                Savings on <br /> Goals
-              </div>
-            </div>
-
-            <div className="flex items-left gap-3 flex-col justify-center">
-              <div className="flex flex-row gap-3 items-center">
-                <FaMoneyBillTrendUp className="w-8 h-8" />
-                <div className="flex flex-col">
-                  <h3 className="text-sm font-bold">Revenue Last Week</h3>
-                  <p className="text-xl font-bold text-green-600">$4,000.00</p>
-                </div>
-              </div>
-
-              <div className="flex flex-row gap-3 items-center">
-                <ImSpoonKnife className="w-8 h-8" />
-                <div className="flex flex-col">
-                  <h3 className="text-sm font-bold">Food Last Week</h3>
-                  <p className="text-xl font-bold text-red-600">- $100.00</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <StatsDashboard />
+        <CategoriesTable />
       </div>
     </div>
   );
