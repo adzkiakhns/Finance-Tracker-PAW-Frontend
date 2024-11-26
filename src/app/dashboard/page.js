@@ -8,12 +8,17 @@ import { BsBoxArrowUpLeft } from "react-icons/bs";
 import { BsBank } from "react-icons/bs";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { ImSpoonKnife } from "react-icons/im";
-import { NavBar } from "@/components/navbar";
+import { Sidebar } from "@/components/sidebar";
+import { useSession } from "next-auth/react";
+import { IoSearchSharp } from "react-icons/io5";
+import { StatsCard } from "@/components/dashboard";
 
 export default function Dashboard() {
   const [data, setData] = useState([]);
   const [incomeData, setIncomeData] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const { data: session } = useSession();
+  console.log(session);
 
   useEffect(() => {
     // Get the current year and month
@@ -107,13 +112,20 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-50 pt-20">
-      <NavBar />
+    <div className="min-h-screen w-full pl-0 md:pl-64 bg-gray-50">
+      <Sidebar />
       <div className="min-h-screen bg-gray-50 p-8 text-black">
-        <h1 className="text-3xl font-bold text-center mb-8">Expense & Income Management</h1>
+        <div className="w-full flex flex-row justify-between">
+          <h1 className="text-xl text-black mb-8">Hello, {session?.user?.name ?? ""} 👋🏼</h1>
+          <div className="relative flex flex-row h-full">
+            <IoSearchSharp className="w-5 h-5 text-gray-500 z-10 absolute left-1 top-1/2 -translate-y-1/2" />
+            <input className="relative px-3 pl-7 rounded z-0 h-full py-3" placeholder="search..." />
+          </div>
+        </div>
 
+        <StatsCard />
         {/* Column Chart Section */}
-        <div className="bg-white shadow-lg rounded-lg p-6 aspect-[3/1] mb-8">
+        <div className="bg-white shadow-lg rounded-lg aspect-[3/1] mb-8">
           <Column {...columnConfig} />
         </div>
 
