@@ -1,26 +1,15 @@
+"use client";
+
 import React, { useState } from "react";
 
+import { useGetExpenses, useAddExpenses, useEditExpenses, useDeleteExpenses } from "@/hooks/expenses";
+import { useGetIncome, useAddIncome, useEditIncome, useDeleteIncome } from "@/hooks/income";
+
 export function TransactionSummary() {
-  const [transactions, setTransactions] = useState([
-    {
-      name: "Salary",
-      date: "18:27 - April 30",
-      type: "Monthly",
-      amount: "Rp2.00mio",
-    },
-    {
-      name: "Groceries",
-      date: "17:02 - April 24",
-      type: "Pantry",
-      amount: "Rp100k",
-    },
-    {
-      name: "Rent",
-      date: "08:30 - April 15",
-      type: "Rent",
-      amount: "Rp500k",
-    },
-  ]);
+  const { data: expenseData, isLoading: loadingExpenses } = useGetExpenses();
+  const { data: incomeData, isLoading: loadingIncome } = useGetIncome();
+  const { mutate: AddIncome } = useAddIncome();
+  const { mutate: AddExpenses } = useAddExpenses();
 
   const [formData, setFormData] = useState({
     description: "",
@@ -29,16 +18,49 @@ export function TransactionSummary() {
     type: "Income",
   });
 
+  if (loadingExpenses || loadingIncome) return <div>Loading...</div>;
+
+  // Function to transform data into required format
+  function transformData(data, type) {
+    return (
+      data?.map((item) => {
+        const date = new Date(item.date);
+        const formattedDate = `${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")} - ${date.toLocaleString(
+          "default",
+          { month: "long" },
+        )} ${date.getDate()}`;
+        const amount = `Rp${(item.amount / 1000).toFixed(0)}k`;
+        return {
+          name: item.source,
+          date: formattedDate,
+          type: item.category,
+          amount,
+          tag: type,
+        };
+      }) || []
+    );
+  }
+
+  // Transform both income and expense data
+  const transformedIncome = transformData(incomeData, "Income");
+  const transformedExpenses = transformData(expenseData, "Expenses");
+
+  // Merge and sort by date
+  const mergedData = [...transformedIncome, ...transformedExpenses].sort((a, b) => {
+    return new Date(b.date.split(" - ")[1]) - new Date(a.date.split(" - ")[1]);
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newTransaction = {
-      name: formData.description,
-      date: new Date().toLocaleTimeString() + " - " + new Date().toDateString(),
-      type: formData.category,
-      amount: `Rp${formData.amount}`,
-    };
-    setTransactions([newTransaction, ...transactions]);
-    setFormData({ description: "", amount: "", category: "", type: "Income" });
+    if (!formData.description || !formData.amount || !formData.category) {
+      alert("Please fill out all fields.");
+      return;
+    }
+    if (e.type === "Income") {
+      AddIncome(formData);
+    } else {
+      AddExpenses(formData);
+    }
   };
 
   return (
@@ -107,17 +129,27 @@ export function TransactionSummary() {
             <div className="col-span-2">Type</div>
             <div className="col-span-2">Amount</div>
           </div>
-          {transactions.map((transaction, index) => (
-            <div key={index} className="grid grid-cols-12 py-4 border-t border-gray-100">
-              <div className="col-span-4 font-bold text-gray-800">{transaction.name}</div>
-              <div className="col-span-4 text-gray-400">{transaction.date}</div>
-              <div className="col-span-2 text-gray-800">{transaction.type}</div>
-              <div className="col-span-2 font-bold text-gray-800">{transaction.amount}</div>
-            </div>
-          ))}
+          {mergedData.length ? (
+            mergedData.map((transaction, index) => (
+              <div
+                key={transaction.id}
+                className={`grid grid-cols-12 py-4 border-t border-gray-100 bg-opacity-50 ${
+                  transaction.tag === "Income" ? "bg-green-50" : "bg-red-50"
+                }`}
+              >
+                <div className="col-span-4 font-bold text-gray-800">{transaction.name}</div>
+                <div className="col-span-4 text-gray-400">{transaction.date}</div>
+                <div className="col-span-2 text-gray-800">{transaction.type}</div>
+                <div className="col-span-2 font-bold text-gray-800">{transaction.amount}</div>
+              </div>
+            ))
+          ) : (
+            <div className="py-4 text-gray-500 text-center">No transactions available</div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
 export default TransactionSummary;
