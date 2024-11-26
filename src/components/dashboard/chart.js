@@ -29,6 +29,7 @@ export function StatsDashboard() {
   // Processed Data
   const data = transformData(incomeData, expenseData);
   const date = new Date();
+  console.log(progressData, ((progressData?.balance / progressData?.target) * 100).toFixed(2));
   return (
     <div className="grid md:grid-cols-2 gap-6 bg-gray-50 h-full">
       {/* Monthly Earning Overview */}
@@ -66,13 +67,15 @@ export function StatsDashboard() {
         <div className="w-48 h-48 relative text-black">
           <div className="flex items-center justify-center flex-col absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
             <Image src="/car.svg" width={42} height={42} alt="Car" />
-            <p className="text-lg font-bold">{Math.abs(progressData?.balance / progressData?.target).toFixed(1)}%</p>
+            <p className="text-lg font-bold">
+              {Math.abs((progressData?.balance / progressData?.target) * 100).toFixed(1)}%
+            </p>
             <p className="text-xs text-center">Savings on Goal</p>
           </div>
           <CircularProgressbar
             className="z-0"
             strokeWidth={15}
-            value={progressData?.balance / progressData?.target}
+            value={((progressData?.balance / progressData?.target) * 100).toFixed(2)}
             styles={buildStyles({
               pathColor: "rgb(255, 99, 71)",
               textColor: "rgb(34, 34, 34)",
