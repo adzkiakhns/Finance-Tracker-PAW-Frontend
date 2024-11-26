@@ -6,8 +6,8 @@ const axios = Axios.create({
 });
 
 const setTokenApi = (token) => {
-  api.defaults.headers.common.Authorization = `Bearer ${token}`;
-  api.interceptors.request.use((req) => {
+  axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+  axios.interceptors.request.use((req) => {
     req.headers.Authorization = `Bearer ${token}`;
     return req;
   });

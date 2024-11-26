@@ -27,10 +27,16 @@ export const options = {
           );
 
           const { data } = res;
+
           return {
-            id: data.id,
-            email: data.email,
-            name: data.username ?? "",
+            id: data.user.id,
+            email: data.user.email,
+            username: data.user.username ?? "",
+            name: data.user.name ?? "",
+            mobileNumber: data.user.mobileNumber,
+            balance: data.user.balance,
+            target: data.user.target,
+            profilePicture: data.user.target,
             accessToken: data.token,
             accessTokenExpires: Date.now() + ACCESS_TOKEN_EXP_AUTH_OPTION_IN_MS,
           };
@@ -61,6 +67,11 @@ export const options = {
           id: user.id,
           email: user.email,
           username: user.name,
+          name: user.name ?? "",
+          mobileNumber: user.mobileNumber,
+          balance: user.balance,
+          target: user.target,
+          profilePicture: user.target,
           accessToken: user.accessToken,
           accessTokenExpires: user.accessTokenExpires,
         };
@@ -79,6 +90,11 @@ export const options = {
         id: token.id,
         email: token.email,
         username: token.username,
+        name: token.name ?? "",
+        mobileNumber: token.mobileNumber,
+        balance: token.balance,
+        target: token.target,
+        profilePicture: token.target,
         accessToken: token.accessToken,
       };
       return session;
