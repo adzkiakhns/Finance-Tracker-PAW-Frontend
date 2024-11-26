@@ -18,7 +18,7 @@ export function StatsDashboard() {
   const transformData = (incomeData, expenseData) => {
     return incomeData?.map((incomeWeek, index) => {
       console.log(expenseData);
-      const expenseWeek = expenseData[index] || { totalExpense: 0 }; // Handle missing weeks in expense data
+      const expenseWeek = expenseData?.[index] ?? { totalExpense: 0 }; // Handle missing weeks in expense data
       return {
         name: `${index + 1}st Week`, // Dynamically create the week name
         earning: incomeWeek.totalIncome / 10000, // Convert income to a smaller unit for display

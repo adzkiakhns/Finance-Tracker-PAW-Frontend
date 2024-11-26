@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 export const useAccessToken = () => {
   const { data: session } = useSession();
   const accessToken = session?.user?.accessToken;
-  const userId = "67440b57303a572cc292155c";
+  const userId = session?.user?.id;
 
   const headers = {
     Authorization: `Bearer ${accessToken}`,

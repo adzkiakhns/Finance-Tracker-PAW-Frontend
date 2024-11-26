@@ -13,7 +13,7 @@ const Modal = ({ message, onClose }) => {
         <p>{message}</p>
         <button
           onClick={onClose}
-          className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          className="w-full mt-4 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
         >
           OK
         </button>
@@ -23,6 +23,9 @@ const Modal = ({ message, onClose }) => {
 };
 
 export default function SignUpPage() {
+  const [fullname, setFullname] = useState("");
+  const [target, setTarget] = useState(0);
+  const [balance, setBalance] = useState(0);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -62,10 +65,13 @@ export default function SignUpPage() {
     }
 
     try {
-      console.log("Submitting data:", { username, email, password });
+      console.log("Submitting data:", { fullname, target, balance, username, email, password });
       const response = await axios.post(
         "/api/users/register", // Replace with actual API URL
         {
+          name: fullname,
+          target,
+          balance: parseFloat(balance),
           username,
           email,
           password,
@@ -109,6 +115,48 @@ export default function SignUpPage() {
           <h1 className="text-2xl font-bold mb-6 text-black">Create an account</h1>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
+              <label htmlFor="fullname" className="block text-sm font-medium text-gray-700">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="fullname"
+                value={fullname}
+                onChange={(e) => setFullname(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="target" className="block text-sm font-medium text-gray-700">
+                Target
+              </label>
+              <input
+                type="number"
+                id="target"
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="balance" className="block text-sm font-medium text-gray-700">
+                Balance
+              </label>
+              <input
+                type="number"
+                id="balance"
+                value={balance}
+                onChange={(e) => setBalance(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Username
               </label>
@@ -117,7 +165,7 @@ export default function SignUpPage() {
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                 required
               />
             </div>
@@ -131,7 +179,7 @@ export default function SignUpPage() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                 required
               />
             </div>
@@ -146,7 +194,7 @@ export default function SignUpPage() {
                   id="password"
                   value={password}
                   onChange={handlePasswordChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                   required
                 />
                 <button
@@ -169,7 +217,7 @@ export default function SignUpPage() {
                   id="confirm-password"
                   value={confirmPassword}
                   onChange={handleConfirmPasswordChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                   required
                 />
                 <button
@@ -185,7 +233,7 @@ export default function SignUpPage() {
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
+              className="w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors"
               disabled={passwordError !== null}
             >
               Sign up
@@ -194,7 +242,7 @@ export default function SignUpPage() {
 
           <p className="mt-4 text-sm text-gray-500">
             Already have an account?{" "}
-            <Link href="/signin" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/signin" className="font-medium text-orange-600 hover:text-orange-500">
               Sign in here
             </Link>
           </p>

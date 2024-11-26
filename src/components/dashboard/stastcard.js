@@ -5,7 +5,8 @@ import { useGetBalance, useGetBalanceProgress } from "@/hooks/balance";
 import { useGetMonthlyExpenses } from "@/hooks/expenses";
 import { useGetMonthlyIncome } from "@/hooks/income";
 function numberWithDot(x) {
-  var parts = x.toString().split(".");
+  if (!x) return "0";
+  var parts = x?.toString().split(".");
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return parts.join(".");
 }
