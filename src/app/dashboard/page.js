@@ -1,13 +1,9 @@
 "use client";
 
-import { Column, Tiny } from "@ant-design/plots";
 import React, { useState, useEffect } from "react";
 import { axios } from "@/lib/axios";
 import { IoDiamondOutline, IoFastFoodOutline } from "react-icons/io5";
 import { BsBoxArrowUpLeft } from "react-icons/bs";
-import { BsBank } from "react-icons/bs";
-import { FaMoneyBillTrendUp } from "react-icons/fa6";
-import { ImSpoonKnife } from "react-icons/im";
 import { Sidebar } from "@/components/sidebar";
 import { useSession } from "next-auth/react";
 import { IoSearchSharp } from "react-icons/io5";

@@ -8,7 +8,7 @@ export function CategoriesTable() {
       date: "18:27 - April 30",
       type: "Monthly",
       amount: "Rp2.00mio",
-      icon: "/icons/salary.svg", // Add your icon paths
+      icon: "/salary.svg", // Add your icon paths
       color: "bg-orange-400",
     },
     {
@@ -16,7 +16,7 @@ export function CategoriesTable() {
       date: "17:02 - April 24",
       type: "Pantry",
       amount: "Rp100k",
-      icon: "/icons/groceries.svg",
+      icon: "/groceries.svg",
       color: "bg-red-500",
     },
     {
@@ -24,7 +24,7 @@ export function CategoriesTable() {
       date: "08:30 - April 15",
       type: "Rent",
       amount: "Rp500k",
-      icon: "/icons/rent.svg",
+      icon: "/rent.svg",
       color: "bg-red-400",
     },
   ];
